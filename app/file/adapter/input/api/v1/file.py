@@ -1,7 +1,8 @@
 import uuid
 
-from fastapi import APIRouter, File, UploadFile, HTTPException
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends
 
+from celery_task.tasks.parse_file import ProcessFilesTask, get_process_files_task
 from core.config import config
 
 file_router = APIRouter()
@@ -11,6 +12,7 @@ file_router = APIRouter()
 async def upload_files(
     abm_file: UploadFile = File(...),
     sup_file: UploadFile = File(...),
+    process_files_task: ProcessFilesTask = Depends(get_process_files_task)
 ):
     upload_dir = config.UPLOADED_FILES_DIRECTORY
 
@@ -24,6 +26,8 @@ async def upload_files(
         with open(sup_path, "wb") as f:
             content = await sup_file.read()
             f.write(content)
+
+        process_files_task.delay(abm_path=str(abm_path), sup_path=str(sup_path))
 
         return {"abm_file": str(abm_path), "sup_file": str(sup_path)}
 
