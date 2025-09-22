@@ -1,11 +1,12 @@
 [tool.poetry]
-name = "fastapi-boilerplate"
-version = "0.2.0"
-description = "FastAPI Boilerplate"
-authors = ["Hide <padocon@naver.com>"]
+name = "ai-parsing-test-task"
+version = "0.0.1"
+description = "AI Parsing Test Task"
+authors = ["ArtemSerdechnyi <artem.serdechnyy@gmail.com>"]
+package-mode = false
 
 [tool.poetry.dependencies]
-python = "3.11.7"
+python = "^3.11.7"
 alembic = "^1.13.1"
 uvicorn = "^0.25.0"
 fastapi = "^0.109.1"
