@@ -1,7 +1,10 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 from dependency_injector.wiring import Provide, inject
 
+from core.config import config
+
 ws_router = APIRouter()
+
 
 @ws_router.websocket("/ws/test")
 @inject

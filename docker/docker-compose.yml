@@ -21,5 +21,19 @@ services:
     ports:
       - "6379:6379"
 
+#  app:
+#    build:
+#      context: ..
+#      dockerfile: docker/Dockerfile
+#    container_name: fastapi-web
+#    command: uvicorn main:app --host 0.0.0.0 --reload
+#    volumes:
+#      - .:/app
+#    ports:
+#      - "8000:8000"
+#    depends_on:
+#      - postgres
+#      - redis
+
 volumes:
   postgres_data:

@@ -75,7 +75,17 @@ def init_cache() -> None:
     Cache.init(backend=RedisBackend(), key_maker=CustomKeyMaker())
 
 
+def validate_app() -> None:
+    if not config.UPLOADED_FILES_DIRECTORY.exists():
+        raise RuntimeError(
+            f"Upload directory does not exist: {config.UPLOADED_FILES_DIRECTORY}"
+        )
+
+
+
 def create_app() -> FastAPI:
+    validate_app()
+
     app_ = FastAPI(
         title="Hide",
         description="Hide API",
