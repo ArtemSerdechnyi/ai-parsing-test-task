@@ -14,7 +14,6 @@ config = context.config
 fileConfig(config.config_file_name)
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.realpath(__file__))))
 
-
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
@@ -29,6 +28,7 @@ from core.config import config
 from core.db import Base
 
 target_metadata = Base.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
@@ -46,8 +46,9 @@ def run_migrations_offline():
     script output.
     """
     url = config.get_main_option("sqlalchemy.url")
+    url = config.WRITER_DB_URL.replace("postgresql+asyncpg", "postgresql+psycopg2")
     context.configure(
-        url=config.WRITER_DB_URL,
+        url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -70,7 +71,7 @@ def run_migrations_online():
     and associate a connection with the context.
     """
     connectable = create_engine(
-        config.WRITER_DB_URL.replace("aiomysql", "pymysql"),
+        config.WRITER_DB_URL.replace("postgresql+asyncpg", "postgresql+psycopg2"),
         poolclass=pool.NullPool,
     )
 
