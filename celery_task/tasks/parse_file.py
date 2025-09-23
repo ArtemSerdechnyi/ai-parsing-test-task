@@ -1,6 +1,5 @@
 from pathlib import Path
 
-import pandas as pd
 from celery_task import celery_app
 from celery_task.tasks import CeleryTaskBase
 
@@ -14,9 +13,6 @@ class ProcessFilesTask(CeleryTaskBase):
         def process_files(abm_path: str, sup_path: str):
             abm_path = Path(abm_path)
             sup_path = Path(sup_path)
-
-            searched_columns_names = ["company_name", "domain_name"]
-
 
 
             return {"status": "done", "abm_file": abm_path, "sup_file": sup_path}
