@@ -18,8 +18,10 @@ class Config(BaseSettings):
     JWT_SECRET_KEY: str = "fastapi"
     JWT_ALGORITHM: str = "HS256"
     SENTRY_SDN: str = ""
-    CELERY_BROKER_URL: str = "amqp://user:bitnami@localhost:5672/"
-    CELERY_BACKEND_URL: str = "redis://:password123@localhost:6379/0"
+    # CELERY_BROKER_URL: str = "amqp://user:bitnami@localhost:5672/"
+    CELERY_BROKER_URL: str = "redis://localhost:6379/0"
+    # CELERY_BACKEND_URL: str = "redis://:password123@localhost:6379/0"
+    CELERY_BACKEND_URL: str = "redis://localhost:6379/0"
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
     OPENAI_API_KEY: str
