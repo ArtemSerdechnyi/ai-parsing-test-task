@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pandas as pd
 from celery_task import celery_app
 from celery_task.tasks import CeleryTaskBase
 

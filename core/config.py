@@ -1,12 +1,14 @@
 import os
 from pathlib import Path
 
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 ROOT_DIR = Path(__file__).parent.parent
 
 
 class Config(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
     ENV: str = "development"
     DEBUG: bool = True
     APP_HOST: str = "0.0.0.0"
@@ -20,6 +22,7 @@ class Config(BaseSettings):
     CELERY_BACKEND_URL: str = "redis://:password123@localhost:6379/0"
     REDIS_HOST: str = "localhost"
     REDIS_PORT: int = 6379
+    OPENAI_API_KEY: str
 
     UPLOADED_FILES_DIRECTORY: Path = ROOT_DIR / "core" / "uploaded_files"
 
