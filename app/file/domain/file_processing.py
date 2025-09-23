@@ -5,6 +5,7 @@ from pathlib import Path
 import pandas as pd
 from celery import Task
 
+from app.file.domain.entity.queries import bulk_insert_companies
 from app.file.domain.enums import ProcessStatus
 from rag.file.structured import match_columns
 from app.file.domain.constants import SAMPLES_COUNT, SUBTRACT_COLUMN, TARGET_COLUMNS
@@ -113,6 +114,12 @@ def process_files(task_self: Task, abm_path: str, sup_path: str):
         if d not in sup_domain_set:
             abm_final_companies.append(c)
             abm_final_domains.append(d)
+
+    task_self.update_state(state="PROCESSING", meta={"status": ProcessStatus.SAVE_TO_DB})
+
+    bulk_insert_companies(abm_final_companies, abm_final_domains)
+
+    task_self.update_state(state="PROCESSING", meta={"status": ProcessStatus.COMPLETED})
 
     task_self.update_state(state="SUCCESS", meta={"status": ProcessStatus.COMPLETED})
 

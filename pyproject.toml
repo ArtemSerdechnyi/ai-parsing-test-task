@@ -37,6 +37,7 @@ openai = "^1.108.2"
 pandas = "^2.3.2"
 instructor = "^1.11.3"
 openpyxl = "^3.1.5"
+flower = "^2.0.1"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.4"

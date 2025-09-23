@@ -1,15 +1,16 @@
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, contextmanager
 from contextvars import ContextVar, Token
 from enum import Enum
-from typing import AsyncGenerator
+from typing import AsyncGenerator, Any, Generator
 
+from sqlalchemy import create_engine
 from sqlalchemy.ext.asyncio import (
     AsyncSession,
     async_scoped_session,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import DeclarativeBase, Session
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 from sqlalchemy.sql.expression import Delete, Insert, Update
 
 from core.config import config
@@ -74,3 +75,18 @@ async def session_factory() -> AsyncGenerator[AsyncSession, None]:
         yield _session
     finally:
         await _session.close()
+
+sync_engine = create_engine(config.SYNC_WRITER_DB_URL)
+
+
+@contextmanager
+def sync_session() -> Generator[Session, Any, None]:
+    _session = sessionmaker(bind=sync_engine)()
+    try:
+        yield _session
+        _session.commit()
+    except Exception:
+        _session.rollback()
+        raise
+    finally:
+        _session.close()

@@ -15,6 +15,8 @@ class Config(BaseSettings):
     APP_PORT: int = 8000
     WRITER_DB_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/fastapi"
     READER_DB_URL: str = "postgresql+asyncpg://postgres:postgres@localhost:5432/fastapi"
+    SYNC_WRITER_DB_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/fastapi"
+    SYNC_READER_DB_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/fastapi"
     JWT_SECRET_KEY: str = "fastapi"
     JWT_ALGORITHM: str = "HS256"
     SENTRY_SDN: str = ""
