@@ -1,4 +1,5 @@
 import re
+from concurrent.futures import ThreadPoolExecutor, Future
 from itertools import zip_longest
 from pathlib import Path
 
@@ -84,8 +85,12 @@ def process_files(task_self: Task, abm_path: str, sup_path: str):
 
     task_self.update_state(state="PROCESSING", meta={"status": ProcessStatus.MATCHING_COLUMNS})
 
-    abm_matches = match_columns(columns_data=columns_samples_abm, target_columns=TARGET_COLUMNS)
-    sup_matches = match_columns(columns_data=columns_samples_sup, target_columns=TARGET_COLUMNS)
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        future_abm: Future = executor.submit(match_columns, columns_data=columns_samples_abm, target_columns=TARGET_COLUMNS)
+        future_sup: Future = executor.submit(match_columns, columns_data=columns_samples_sup, target_columns=TARGET_COLUMNS)
+
+        abm_matches = future_abm.result()
+        sup_matches = future_sup.result()
 
     task_self.update_state(state="PROCESSING", meta={"status": ProcessStatus.PREPROCESSING})
 
