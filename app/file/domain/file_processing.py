@@ -3,9 +3,11 @@ from itertools import zip_longest
 from pathlib import Path
 
 import pandas as pd
+from celery import Task
 
+from app.file.domain.enums import ProcessStatus
 from rag.file.structured import match_columns
-from app.file.domain.constants import SAMPLES_COUNT, SUBTRACT_COLUMN
+from app.file.domain.constants import SAMPLES_COUNT, SUBTRACT_COLUMN, TARGET_COLUMNS
 from app.file.domain.schemas import ColumnMatches
 
 
@@ -63,20 +65,28 @@ def extract_columns_by_matches(df: pd.DataFrame, matches: ColumnMatches) -> dict
     return result
 
 
-def process_files(abm_path: str, sup_path: str):
+def process_files(task_self: Task, abm_path: str, sup_path: str):
+    task_self.update_state(state="PROCESSING", meta={"status": ProcessStatus.STARTING})
+
     abm_path = Path(abm_path)
     sup_path = Path(sup_path)
 
-    target_columns = ["company_name", "domain_name"]
+    task_self.update_state(state="PROCESSING", meta={"status": ProcessStatus.READING_FILES.value})
 
     df_abm = pd.read_excel(abm_path, header=None).replace({pd.NA: None, float("nan"): None})
     df_sup = pd.read_excel(sup_path, header=None).replace({pd.NA: None, float("nan"): None})
 
+    task_self.update_state(state="PROCESSING", meta={"status": ProcessStatus.EXTRACTING_SAMPLES})
+
     columns_samples_abm = get_column_samples(df_abm)
     columns_samples_sup = get_column_samples(df_sup)
 
-    abm_matches = match_columns(columns_data=columns_samples_abm, target_columns=target_columns)
-    sup_matches = match_columns(columns_data=columns_samples_sup, target_columns=target_columns)
+    task_self.update_state(state="PROCESSING", meta={"status": ProcessStatus.MATCHING_COLUMNS})
+
+    abm_matches = match_columns(columns_data=columns_samples_abm, target_columns=TARGET_COLUMNS)
+    sup_matches = match_columns(columns_data=columns_samples_sup, target_columns=TARGET_COLUMNS)
+
+    task_self.update_state(state="PROCESSING", meta={"status": ProcessStatus.PREPROCESSING})
 
     abm_data = extract_columns_by_matches(df_abm, abm_matches)
     sup_data = extract_columns_by_matches(df_sup, sup_matches)
@@ -92,6 +102,8 @@ def process_files(abm_path: str, sup_path: str):
     processed_abm_data["company_name"] = filtered_abm_company
     processed_abm_data["domain_name"] = filtered_abm_domain
 
+    task_self.update_state(state="PROCESSING", meta={"status": ProcessStatus.SUBTRACTING_SUP})
+
     sup_domain_set = set(processed_sub_data[SUBTRACT_COLUMN])
 
     abm_final_companies = []
@@ -101,5 +113,7 @@ def process_files(abm_path: str, sup_path: str):
         if d not in sup_domain_set:
             abm_final_companies.append(c)
             abm_final_domains.append(d)
+
+    task_self.update_state(state="SUCCESS", meta={"status": ProcessStatus.COMPLETED})
 
     return abm_final_companies, abm_final_domains

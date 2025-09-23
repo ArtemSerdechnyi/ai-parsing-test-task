@@ -1,4 +1,4 @@
-def build_match_columns_prompt(columns_data: list[dict], target_columns: list[str]) -> str:
+def build_match_columns_prompt(columns_data: list[dict], target_columns: tuple[str, ...]) -> str:
     prompt = f"""
         You are an assistant helping to identify relevant columns in a dataset.
 
